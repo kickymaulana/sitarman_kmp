@@ -7,6 +7,7 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import kotlinx.coroutines.flow.collectLatest
 import org.koin.compose.viewmodel.koinViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -14,12 +15,29 @@ import org.koin.compose.viewmodel.koinViewModel
 fun AddUserScreen(onNavigateBack: () -> Unit) {
     val viewModel = koinViewModel<UserViewModel>()
     val isLoading by viewModel.isLoading.collectAsState()
+    val snackbarHostState = remember { SnackbarHostState() }
 
     var name by remember { mutableStateOf("") }
+    var username by remember { mutableStateOf("") }
+    var whatsapp by remember { mutableStateOf("") }
     var email by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
 
+    LaunchedEffect(Unit) {
+        viewModel.events.collectLatest { event ->
+            when (event) {
+                is UserEvent.Success -> {
+                    onNavigateBack()
+                }
+                is UserEvent.Error -> {
+                    snackbarHostState.showSnackbar(event.message)
+                }
+            }
+        }
+    }
+
     Scaffold(
+        snackbarHost = { SnackbarHost(snackbarHostState) },
         topBar = {
             TopAppBar(
                 title = { Text("Tambah User Baru") },
@@ -47,6 +65,22 @@ fun AddUserScreen(onNavigateBack: () -> Unit) {
             )
 
             OutlinedTextField(
+                value = username,
+                onValueChange = { username = it },
+                label = { Text("Username") },
+                modifier = Modifier.fillMaxWidth(),
+                singleLine = true
+            )
+
+            OutlinedTextField(
+                value = whatsapp,
+                onValueChange = { whatsapp = it },
+                label = { Text("WhatsApp") },
+                modifier = Modifier.fillMaxWidth(),
+                singleLine = true
+            )
+
+            OutlinedTextField(
                 value = email,
                 onValueChange = { email = it },
                 label = { Text("Email") },
@@ -66,11 +100,10 @@ fun AddUserScreen(onNavigateBack: () -> Unit) {
 
             Button(
                 onClick = {
-                    viewModel.createUser(name, email, password)
-                    onNavigateBack()
+                    viewModel.createUser(name, username, whatsapp, email, password)
                 },
                 modifier = Modifier.fillMaxWidth(),
-                enabled = name.isNotBlank() && email.isNotBlank() && password.isNotBlank() && !isLoading
+                enabled = name.isNotBlank() && username.isNotBlank() && whatsapp.isNotBlank() && email.isNotBlank() && password.isNotBlank() && !isLoading
             ) {
                 if (isLoading) {
                     CircularProgressIndicator(

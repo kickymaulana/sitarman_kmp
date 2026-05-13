@@ -15,7 +15,7 @@ fun LoginScreen(onLoginSuccess: () -> Unit) {
     val isLoading by viewModel.isLoading.collectAsState()
     val loginResult by viewModel.loginResult.collectAsState()
 
-    var email by remember { mutableStateOf("") }
+    var username by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
 
     Column(
@@ -23,13 +23,13 @@ fun LoginScreen(onLoginSuccess: () -> Unit) {
         verticalArrangement = Arrangement.Center,
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        Text("Sitarman 2", style = MaterialTheme.typography.headlineLarge)
+        Text("Sitarman", style = MaterialTheme.typography.headlineLarge)
         Spacer(modifier = Modifier.height(32.dp))
 
         OutlinedTextField(
-            value = email,
-            onValueChange = { email = it },
-            label = { Text("Email") },
+            value = username,
+            onValueChange = { username = it },
+            label = { Text("Username") },
             modifier = Modifier.fillMaxWidth()
         )
         Spacer(modifier = Modifier.height(16.dp))
@@ -47,9 +47,9 @@ fun LoginScreen(onLoginSuccess: () -> Unit) {
             CircularProgressIndicator()
         } else {
             Button(
-                onClick = { viewModel.login(email, password) },
+                onClick = { viewModel.login(username, password) },
                 modifier = Modifier.fillMaxWidth(),
-                enabled = email.isNotEmpty() && password.isNotEmpty()
+                enabled = username.isNotEmpty() && password.isNotEmpty()
             ) {
                 Text("Login")
             }

@@ -19,31 +19,28 @@ class LoginViewModel(
     private val _loginResult = MutableStateFlow<String?>(null)
     val loginResult = _loginResult.asStateFlow()
 
-    fun login(email: String, password: String) {
+    fun login(username: String, password: String) {
         viewModelScope.launch {
             _isLoading.value = true
             _loginResult.value = null
             try {
-                // Pastikan ketiga parameter terisi: email, password, dan device_name
                 val response = authApi.login(
                     LoginRequest(
-                        email = email.trim(),
+                        username = username.trim(),
                         password = password.trim(),
-                        device_name = "android" // Kita paksa kirim string "android"
+                        device_name = "android"
                     )
                 )
 
                 if (response.accessToken != null) {
-                    // SIMPAN TOKEN KE MEMORI PERMANEN
                     settings.putString("auth_token", response.accessToken)
                     _loginResult.value = "Berhasil! Token didapat."
                 } else if (response.message != null) {
                     _loginResult.value = "Gagal: ${response.message}"
                 } else {
-                    _loginResult.value = "Gagal: Cek kembali email & password"
+                    _loginResult.value = "Gagal: Cek kembali username & password"
                 }
             } catch (e: Exception) {
-                // Menampilkan error lebih detail (seperti 422, 500, dll)
                 _loginResult.value = "Koneksi Gagal: ${e.message}"
             } finally {
                 _isLoading.value = false

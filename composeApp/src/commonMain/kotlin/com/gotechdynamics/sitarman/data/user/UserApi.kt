@@ -8,6 +8,12 @@ import io.ktor.client.request.*
 import io.ktor.client.statement.bodyAsText
 import io.ktor.http.ContentType
 import io.ktor.http.contentType
+import io.ktor.client.plugins.ClientRequestException
+import io.ktor.client.statement.HttpResponse
+import kotlinx.serialization.json.Json
+import kotlinx.serialization.json.jsonObject
+import kotlinx.serialization.json.jsonArray
+import kotlinx.serialization.json.jsonPrimitive
 
 class UserApi(private val client: HttpClient, private val settings: Settings) {
     private val BASE_URL = "${ApiConstants.BASE_URL}/users"
@@ -20,44 +26,74 @@ class UserApi(private val client: HttpClient, private val settings: Settings) {
     }
 
     suspend fun getUsers(search: String? = null, page: Int = 1): UserListResponse {
-        val response = client.get(BASE_URL) {
+        return client.get(BASE_URL) {
             authHeader()
             parameter("search", search)
             parameter("page", page)
             accept(ContentType.Application.Json)
-        }
-
-        if (response.status.value !in 200..299) {
-            println("UserApi Error: ${response.status} - ${response.bodyAsText()}")
-        }
-
-        return response.body()
+        }.body()
     }
 
     suspend fun createUser(user: User): UserResponse {
-        val response = client.post(BASE_URL) {
-            authHeader()
-            contentType(ContentType.Application.Json)
-            accept(ContentType.Application.Json)
-            setBody(user)
+        try {
+            val response: HttpResponse = client.post(BASE_URL) {
+                authHeader()
+                url {
+                    parameters.append("expectSuccess", "true")
+                }
+                contentType(ContentType.Application.Json)
+                accept(ContentType.Application.Json)
+                setBody(user)
+            }
+            return response.body()
+        } catch (e: ClientRequestException) {
+            val errorBody = e.response.bodyAsText()
+            val message = parseErrorMessage(errorBody)
+            throw Exception(message)
         }
-        return response.body()
     }
 
     suspend fun updateUser(id: Int, user: User): UserResponse {
-        val response = client.put("$BASE_URL/$id") {
-            authHeader()
-            contentType(ContentType.Application.Json)
-            accept(ContentType.Application.Json)
-            setBody(user)
+        try {
+            val response: HttpResponse = client.put("$BASE_URL/$id") {
+                authHeader()
+                url {
+                    parameters.append("expectSuccess", "true")
+                }
+                contentType(ContentType.Application.Json)
+                accept(ContentType.Application.Json)
+                setBody(user)
+            }
+            return response.body()
+        } catch (e: ClientRequestException) {
+            val errorBody = e.response.bodyAsText()
+            val message = parseErrorMessage(errorBody)
+            throw Exception(message)
         }
-        return response.body()
     }
 
     suspend fun deleteUser(id: Int) {
         client.delete("$BASE_URL/$id") {
             authHeader()
             accept(ContentType.Application.Json)
+        }
+    }
+
+    private fun parseErrorMessage(jsonString: String): String {
+        return try {
+            val json = Json.parseToJsonElement(jsonString).jsonObject
+            val message = json["message"]?.jsonPrimitive?.content ?: "Terjadi kesalahan"
+            val errors = json["errors"]?.jsonObject
+            if (errors != null) {
+                val firstErrorField = errors.keys.firstOrNull()
+                if (firstErrorField != null) {
+                    val firstErrorMessage = errors[firstErrorField]?.jsonArray?.get(0)?.jsonPrimitive?.content
+                    return firstErrorMessage ?: message
+                }
+            }
+            message
+        } catch (e: Exception) {
+            "Pesan: $jsonString"
         }
     }
 }

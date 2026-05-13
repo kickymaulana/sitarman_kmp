@@ -1,12 +1,16 @@
 package com.gotechdynamics.sitarman.di
 
 import com.russhwolf.settings.Settings
+import com.gotechdynamics.sitarman.data.*
 import com.gotechdynamics.sitarman.data.auth.*
 import com.gotechdynamics.sitarman.data.user.*
 import com.gotechdynamics.sitarman.screens.login.LoginViewModel
 import com.gotechdynamics.sitarman.screens.user.UserViewModel
 import io.ktor.client.HttpClient
 import io.ktor.client.plugins.contentnegotiation.ContentNegotiation
+import io.ktor.client.plugins.logging.LogLevel
+import io.ktor.client.plugins.logging.Logger
+import io.ktor.client.plugins.logging.Logging
 import io.ktor.serialization.kotlinx.json.json
 import kotlinx.serialization.json.Json
 import org.koin.core.context.startKoin
@@ -27,6 +31,14 @@ val dataModule = module {
         HttpClient {
             install(ContentNegotiation) {
                 json(json)
+            }
+            install(Logging) {
+                logger = object : Logger {
+                    override fun log(message: String) {
+                        println("HTTP Client: $message")
+                    }
+                }
+                level = LogLevel.ALL
             }
         }
     }

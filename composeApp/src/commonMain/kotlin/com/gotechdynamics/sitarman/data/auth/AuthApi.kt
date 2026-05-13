@@ -17,7 +17,7 @@ class AuthApi(private val client: HttpClient) {
             contentType(ContentType.Application.Json)
             accept(ContentType.Application.Json)
             setBody(mapOf(
-                "email" to request.email,
+                "username" to request.username,
                 "password" to request.password,
                 "device_name" to "android"
             ))

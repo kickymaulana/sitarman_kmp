@@ -40,7 +40,7 @@ fun ProfileScreen(onLogout: () -> Unit) {
         Spacer(modifier = Modifier.height(8.dp))
 
         Text(
-            text = "Anda sedang login ke Sisamsul App",
+            text = "Anda sedang login ke Sitarman App",
             style = MaterialTheme.typography.bodyLarge,
             color = MaterialTheme.colorScheme.onSurfaceVariant
         )

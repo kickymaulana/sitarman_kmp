@@ -25,6 +25,11 @@ fun MainScreen(
     var searchQuery by remember { mutableStateOf("") }
     var isSearchActive by remember { mutableStateOf(false) }
 
+    // Memuat data pertama kali saat screen muncul
+    LaunchedEffect(Unit) {
+        viewModel.loadUsers()
+    }
+
     Scaffold(
         topBar = {
             TopAppBar(
@@ -45,7 +50,7 @@ fun MainScreen(
                             )
                         )
                     } else {
-                        Text(if (selectedTab == 0) "Sisamsul Users" else "Profil Saya")
+                        Text(if (selectedTab == 0) "Daftar User" else "Profil Saya")
                     }
                 },
                 actions = {

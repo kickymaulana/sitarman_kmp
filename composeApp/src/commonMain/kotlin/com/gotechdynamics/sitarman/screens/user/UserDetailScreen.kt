@@ -9,7 +9,7 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import com.gotechdynamics.sitarman.data.user.User
+import kotlinx.coroutines.flow.collectLatest
 import org.koin.compose.viewmodel.koinViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -22,10 +22,25 @@ fun UserDetailScreen(
     val viewModel = koinViewModel<UserViewModel>()
     val users by viewModel.users.collectAsState()
     val user = users.find { it.id == userId }
+    val snackbarHostState = remember { SnackbarHostState() }
 
     var showDeleteDialog by remember { mutableStateOf(false) }
 
+    LaunchedEffect(Unit) {
+        viewModel.events.collectLatest { event ->
+            when (event) {
+                is UserEvent.Success -> {
+                    onNavigateBack()
+                }
+                is UserEvent.Error -> {
+                    snackbarHostState.showSnackbar(event.message)
+                }
+            }
+        }
+    }
+
     Scaffold(
+        snackbarHost = { SnackbarHost(snackbarHostState) },
         topBar = {
             TopAppBar(
                 title = { Text("Detail User") },
@@ -60,6 +75,16 @@ fun UserDetailScreen(
 
                         Spacer(modifier = Modifier.height(16.dp))
 
+                        Text("Username", style = MaterialTheme.typography.labelLarge)
+                        Text(user.username, style = MaterialTheme.typography.bodyLarge)
+
+                        Spacer(modifier = Modifier.height(16.dp))
+
+                        Text("WhatsApp", style = MaterialTheme.typography.labelLarge)
+                        Text(user.whatsapp, style = MaterialTheme.typography.bodyLarge)
+
+                        Spacer(modifier = Modifier.height(16.dp))
+
                         Text("Email", style = MaterialTheme.typography.labelLarge)
                         Text(user.email, style = MaterialTheme.typography.bodyLarge)
 
@@ -88,7 +113,6 @@ fun UserDetailScreen(
                     onClick = {
                         viewModel.deleteUser(userId)
                         showDeleteDialog = false
-                        onNavigateBack()
                     },
                     colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.error)
                 ) {

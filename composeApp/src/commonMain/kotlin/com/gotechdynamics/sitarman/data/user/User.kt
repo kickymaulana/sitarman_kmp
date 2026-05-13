@@ -7,6 +7,8 @@ import kotlinx.serialization.Serializable
 data class User(
     val id: Int? = null,
     val name: String = "",
+    val username: String = "",
+    val whatsapp: String = "",
     val email: String = "",
     val password: String? = null,
     @SerialName("created_at")
