@@ -8,7 +8,6 @@ import io.ktor.client.request.*
 import io.ktor.client.statement.bodyAsText
 import io.ktor.http.ContentType
 import io.ktor.http.contentType
-import io.ktor.client.plugins.ClientRequestException
 import io.ktor.client.statement.HttpResponse
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.jsonObject
@@ -35,38 +34,36 @@ class UserApi(private val client: HttpClient, private val settings: Settings) {
     }
 
     suspend fun createUser(user: User): UserResponse {
-        try {
-            val response: HttpResponse = client.post(BASE_URL) {
-                authHeader()
-                url {
-                    parameters.append("expectSuccess", "true")
-                }
-                contentType(ContentType.Application.Json)
-                accept(ContentType.Application.Json)
-                setBody(user)
-            }
+        val response: HttpResponse = client.post(BASE_URL) {
+            authHeader()
+            contentType(ContentType.Application.Json)
+            accept(ContentType.Application.Json)
+            setBody(user)
+        }
+
+        if (response.status.value in 200..299) {
             return response.body()
-        } catch (e: ClientRequestException) {
-            val errorBody = e.response.bodyAsText()
+        } else {
+            val errorBody = response.bodyAsText()
+            println("UserApi Error: ${response.status} - $errorBody")
             val message = parseErrorMessage(errorBody)
             throw Exception(message)
         }
     }
 
     suspend fun updateUser(id: Int, user: User): UserResponse {
-        try {
-            val response: HttpResponse = client.put("$BASE_URL/$id") {
-                authHeader()
-                url {
-                    parameters.append("expectSuccess", "true")
-                }
-                contentType(ContentType.Application.Json)
-                accept(ContentType.Application.Json)
-                setBody(user)
-            }
+        val response: HttpResponse = client.put("$BASE_URL/$id") {
+            authHeader()
+            contentType(ContentType.Application.Json)
+            accept(ContentType.Application.Json)
+            setBody(user)
+        }
+
+        if (response.status.value in 200..299) {
             return response.body()
-        } catch (e: ClientRequestException) {
-            val errorBody = e.response.bodyAsText()
+        } else {
+            val errorBody = response.bodyAsText()
+            println("UserApi Error: ${response.status} - $errorBody")
             val message = parseErrorMessage(errorBody)
             throw Exception(message)
         }
@@ -82,18 +79,29 @@ class UserApi(private val client: HttpClient, private val settings: Settings) {
     private fun parseErrorMessage(jsonString: String): String {
         return try {
             val json = Json.parseToJsonElement(jsonString).jsonObject
-            val message = json["message"]?.jsonPrimitive?.content ?: "Terjadi kesalahan"
+            
+            // Laravel biasanya mengirim pesan utama di field 'message'
+            val message = json["message"]?.jsonPrimitive?.content
+            
+            // Dan detail error validasi di field 'errors'
             val errors = json["errors"]?.jsonObject
-            if (errors != null) {
-                val firstErrorField = errors.keys.firstOrNull()
-                if (firstErrorField != null) {
-                    val firstErrorMessage = errors[firstErrorField]?.jsonArray?.get(0)?.jsonPrimitive?.content
-                    return firstErrorMessage ?: message
+            
+            if (errors != null && errors.isNotEmpty()) {
+                // Ambil semua pesan error dari semua field dan gabungkan
+                val allErrors = mutableListOf<String>()
+                errors.forEach { (_, value) ->
+                    value.jsonArray.forEach { error ->
+                        allErrors.add(error.jsonPrimitive.content)
+                    }
+                }
+                if (allErrors.isNotEmpty()) {
+                    return allErrors.joinToString("\n")
                 }
             }
-            message
+            
+            message ?: "Terjadi kesalahan (Status: $jsonString)"
         } catch (e: Exception) {
-            "Pesan: $jsonString"
+            "Gagal memproses pesan error dari server"
         }
     }
 }
