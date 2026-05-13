@@ -1,10 +1,6 @@
 package com.gotechdynamics.sitarman
 
-import androidx.compose.foundation.isSystemInDarkTheme
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
-import androidx.compose.material3.darkColorScheme
-import androidx.compose.material3.lightColorScheme
 import androidx.compose.runtime.Composable
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
@@ -17,6 +13,7 @@ import com.gotechdynamics.sitarman.screens.user.AddUserScreen
 import com.gotechdynamics.sitarman.screens.user.EditUserScreen
 import com.gotechdynamics.sitarman.screens.user.UserDetailScreen
 import com.russhwolf.settings.Settings
+import com.gotechdynamics.sitarman.ui.theme.SitarmanTheme
 import kotlinx.serialization.Serializable
 import org.koin.compose.koinInject
 
@@ -42,9 +39,7 @@ fun App() {
     val initialToken = settings.getStringOrNull("auth_token")
     val startDest = if (initialToken != null) UserDestination else LoginDestination
 
-    MaterialTheme(
-        colorScheme = if (isSystemInDarkTheme()) darkColorScheme() else lightColorScheme()
-    ) {
+    SitarmanTheme {
         Surface {
             val navController: NavHostController = rememberNavController()
             NavHost(navController = navController, startDestination = startDest) {

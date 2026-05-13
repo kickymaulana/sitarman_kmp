@@ -1,4 +1,4 @@
-package com.gotechdynamics.sitarman.data
+package com.gotechdynamics.sitarman.data.user
 
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -20,7 +20,7 @@ class UserRepository(private val userApi: UserApi) {
 
         try {
             val response = userApi.getUsers(search, currentPage)
-            val newUsers = response.data
+            val newUsers = response.data ?: emptyList()
 
             if (isRefresh) {
                 _users.value = newUsers
@@ -28,7 +28,6 @@ class UserRepository(private val userApi: UserApi) {
                 _users.value = _users.value + newUsers
             }
 
-            // Cek apakah halaman saat ini adalah halaman terakhir
             val lastPage = response.meta?.lastPage ?: 1
             if (currentPage >= lastPage) {
                 isLastPage = true

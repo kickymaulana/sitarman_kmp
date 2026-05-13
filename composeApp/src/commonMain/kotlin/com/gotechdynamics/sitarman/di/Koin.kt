@@ -1,7 +1,8 @@
 package com.gotechdynamics.sitarman.di
 
 import com.russhwolf.settings.Settings
-import com.gotechdynamics.sitarman.data.*
+import com.gotechdynamics.sitarman.data.auth.*
+import com.gotechdynamics.sitarman.data.user.*
 import com.gotechdynamics.sitarman.screens.login.LoginViewModel
 import com.gotechdynamics.sitarman.screens.user.UserViewModel
 import io.ktor.client.HttpClient

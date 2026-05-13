@@ -2,8 +2,8 @@ package com.gotechdynamics.sitarman.screens.login
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.gotechdynamics.sitarman.data.AuthApi
-import com.gotechdynamics.sitarman.data.LoginRequest
+import com.gotechdynamics.sitarman.data.auth.AuthApi
+import com.gotechdynamics.sitarman.data.auth.LoginRequest
 import com.russhwolf.settings.Settings
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow

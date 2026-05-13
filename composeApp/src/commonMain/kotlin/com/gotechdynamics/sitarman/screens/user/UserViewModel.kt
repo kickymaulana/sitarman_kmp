@@ -2,7 +2,7 @@ package com.gotechdynamics.sitarman.screens.user
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.gotechdynamics.sitarman.data.UserRepository
+import com.gotechdynamics.sitarman.data.user.UserRepository
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch

@@ -1,4 +1,4 @@
-package com.gotechdynamics.sitarman.data
+package com.gotechdynamics.sitarman.data.auth
 
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
@@ -8,7 +8,7 @@ data class LoginRequest(
     val email: String,
     val password: String,
     @SerialName("device_name")
-    val device_name: String = "android" // Sesuaikan langsung dengan field Laravel
+    val device_name: String = "android"
 )
 
 @Serializable

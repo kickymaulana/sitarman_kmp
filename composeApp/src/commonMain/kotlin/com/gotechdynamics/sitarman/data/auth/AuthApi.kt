@@ -1,5 +1,6 @@
-package com.gotechdynamics.sitarman.data
+package com.gotechdynamics.sitarman.data.auth
 
+import com.gotechdynamics.sitarman.data.ApiConstants
 import io.ktor.client.HttpClient
 import io.ktor.client.call.body
 import io.ktor.client.request.accept
@@ -9,13 +10,12 @@ import io.ktor.http.ContentType
 import io.ktor.http.contentType
 
 class AuthApi(private val client: HttpClient) {
-    private val BASE_URL = "http://10.0.2.2/laravel_api/public/api"
+    private val BASE_URL = "${ApiConstants.BASE_URL}/login"
 
     suspend fun login(request: LoginRequest): LoginResponse {
-        return client.post("$BASE_URL/login") {
+        return client.post(BASE_URL) {
             contentType(ContentType.Application.Json)
             accept(ContentType.Application.Json)
-            // Mengirim Map menjamin kunci JSON benar-benar sesuai tulisan kita
             setBody(mapOf(
                 "email" to request.email,
                 "password" to request.password,

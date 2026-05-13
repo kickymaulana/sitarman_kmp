@@ -1,4 +1,4 @@
-package com.gotechdynamics.sitarman.data
+package com.gotechdynamics.sitarman.data.user
 
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
@@ -8,7 +8,7 @@ data class User(
     val id: Int? = null,
     val name: String = "",
     val email: String = "",
-    val password: String? = null, // Hanya untuk keperluan Create
+    val password: String? = null,
     @SerialName("created_at")
     val createdAt: String? = null
 )

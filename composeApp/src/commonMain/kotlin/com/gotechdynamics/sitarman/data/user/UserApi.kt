@@ -1,5 +1,6 @@
-package com.gotechdynamics.sitarman.data
+package com.gotechdynamics.sitarman.data.user
 
+import com.gotechdynamics.sitarman.data.ApiConstants
 import com.russhwolf.settings.Settings
 import io.ktor.client.HttpClient
 import io.ktor.client.call.body
@@ -9,7 +10,7 @@ import io.ktor.http.ContentType
 import io.ktor.http.contentType
 
 class UserApi(private val client: HttpClient, private val settings: Settings) {
-    private val BASE_URL = "http://10.0.2.2/laravel_api/public/api/users"
+    private val BASE_URL = "${ApiConstants.BASE_URL}/users"
 
     private fun HttpRequestBuilder.authHeader() {
         val token = settings.getStringOrNull("auth_token")
