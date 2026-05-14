@@ -12,7 +12,9 @@ import io.ktor.http.contentType
 class AuthApi(private val client: HttpClient) {
     private val BASE_URL = "${ApiConstants.BASE_URL}/login"
 
+
     suspend fun login(request: LoginRequest): LoginResponse {
+        println(BASE_URL);
         return client.post(BASE_URL) {
             contentType(ContentType.Application.Json)
             accept(ContentType.Application.Json)
